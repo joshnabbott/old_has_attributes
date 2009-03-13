@@ -17,7 +17,7 @@ module HasTheseAttributes
       after_update :save_localized_attributes
       has_many :"#{name.downcase}_attributes", :dependent => :destroy
       has_one :"#{name.downcase}_attribute", :conditions => 'locale_id = #{Locale.current_locale_id}'
-      eval_methods_in_association_class("#{name}Attribute")
+      eval_methods_in_target_class("#{name}Attribute")
       attributes.each do |attr|
         delegate_to_nil :"#{attr}", :to => :"#{self.name.downcase}_attribute"
       end
@@ -27,7 +27,7 @@ module HasTheseAttributes
       @@_attributes
     end
 
-    def eval_methods_in_association_class(klass)
+    def eval_methods_in_target_class(klass)
       klass.constantize.class_eval <<-EOV
         attr_protected :locale_id
         before_save :set_locale_id, :if => Proc.new { |record| record.domain_id.nil? }
